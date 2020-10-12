@@ -1,29 +1,36 @@
 <template>
-  <div class="container mt-5" v-if="!loading">
+  <div class="container mt-5">
 
- <div class="row">
-   <div class="card col-md-4 col-sm-12" style="width: 18rem;" v-for="joke in jokes.results" :key="joke.id">
-     <div class="card-body">
-       <h5 class="card-title">{{ joke.id }}</h5>
-       <p class="card-text">{{ joke.joke }}</p>
+    <div class="d-flex justify-content-center" v-if="loading">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <div class="jokes" v-show="!loading">
+     <div class="row">
+       <div class="card col-md-4 col-sm-12" style="width: 18rem;" v-for="joke in jokes.results" :key="joke.id">
+         <div class="card-body">
+           <h5 class="card-title">{{ joke.id }}</h5>
+           <p class="card-text">{{ joke.joke }}</p>
+         </div>
+       </div>
      </div>
-   </div>
- </div>
 
-    <nav aria-label="Page navigation" class="marginTop">
-      <ul class="pagination">
-        <li class="page-item">
-          <button type="button" class="page-link" v-if="currentPage !== 1" @click="prevPage()"> Previous </button>
-        </li>
-        <li class="page-item">
-          <button type="button" class="page-link" v-for="pageNumber in pages.slice(currentPage-1, currentPage+5)" @click="setPage(pageNumber)"> {{pageNumber}} </button>
-        </li>
-        <li class="page-item">
-          <button type="button" @click="nextPage()" v-if="currentPage < totalPages" class="page-link"> Next </button>
-        </li>
-      </ul>
-    </nav>
-
+        <nav aria-label="Page navigation" class="marginTop">
+          <ul class="pagination">
+            <li class="page-item">
+              <button type="button" class="page-link" v-if="currentPage !== 1" @click="prevPage()"> Previous </button>
+            </li>
+            <li class="page-item">
+              <button type="button" class="page-link" v-for="pageNumber in pages.slice(currentPage-1, currentPage+5)" @click="setPage(pageNumber)"> {{pageNumber}} </button>
+            </li>
+            <li class="page-item">
+              <button type="button" @click="nextPage()" v-if="currentPage < totalPages" class="page-link"> Next </button>
+            </li>
+          </ul>
+        </nav>
+    </div>
   </div>
 </template>
 
@@ -45,13 +52,14 @@
 
     methods:{
      async getJokes() {
-        // this.loading = true;
+        this.loading = true;
         let url = `http://localhost:8000/api/jokes?current_page=` + this.currentPage;
         const jokes = await axios.get(url);
         this.jokes = jokes.data;
         this.totalPages = jokes.data.total_pages;
         this.currentPage = jokes.data.current_page;
         this.currentPage = jokes.data.current_page;
+        this.loading = false;
         this.setPages();
       },
       nextPage() {
